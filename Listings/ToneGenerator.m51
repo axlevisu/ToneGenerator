@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        09/28/2015  16:38:16  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/05/2015  14:46:09  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -23,18 +23,18 @@ LINK MAP OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
 
             * * * * * * *   D A T A   M E M O R Y   * * * * * * *
             REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
-            DATA    0008H     0010H     UNIT         ?DT?TRANSMITTER
-            DATA    0018H     0002H     UNIT         _DATA_GROUP_
-            IDATA   001AH     0001H     UNIT         ?STACK
+            DATA    0008H     0020H     UNIT         ?DT?TRANSMITTER
+            DATA    0028H     0002H     UNIT         _DATA_GROUP_
+            IDATA   002AH     0001H     UNIT         ?STACK
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
                     0003H     07FDH                  *** GAP ***
-            CODE    0800H     00CFH     UNIT         ?PR?MAIN?TRANSMITTER
-            CODE    08CFH     008CH     UNIT         ?C_C51STARTUP
-            CODE    095BH     0020H     UNIT         ?PR?_MSDELAY?TRANSMITTER
-            CODE    097BH     0013H     UNIT         ?C_INITSEG
-            CODE    098EH     0008H     UNIT         ?PR?_SERTX?TRANSMITTER
+            CODE    0800H     00C9H     UNIT         ?PR?MAIN?TRANSMITTER
+            CODE    08C9H     008CH     UNIT         ?C_C51STARTUP
+            CODE    0955H     0024H     UNIT         ?C_INITSEG
+            CODE    0979H     0020H     UNIT         ?PR?_MSDELAY?TRANSMITTER
+            CODE    0999H     000EH     UNIT         ?PR?_SERTX?TRANSMITTER
 
 
 
@@ -48,7 +48,7 @@ SEGMENT                            DATA_GROUP
   +--> ?PR?MAIN?TRANSMITTER
   +--> ?C_INITSEG
 
-?PR?MAIN?TRANSMITTER             0018H    0002H
+?PR?MAIN?TRANSMITTER             0028H    0002H
   +--> ?PR?_MSDELAY?TRANSMITTER
   +--> ?PR?_SERTX?TRANSMITTER
 
@@ -59,12 +59,12 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   VALUE           TYPE          NAME
   ----------------------------------
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      09/28/2015  16:38:16  PAGE 2
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/05/2015  14:46:09  PAGE 2
 
 
   -------         MODULE        ?C_STARTUP
-  C:08CFH         SEGMENT       ?C_C51STARTUP
-  I:001AH         SEGMENT       ?STACK
+  C:08C9H         SEGMENT       ?C_C51STARTUP
+  I:002AH         SEGMENT       ?STACK
   C:0000H         PUBLIC        ?C_STARTUP
   D:00E0H         SYMBOL        ACC
   D:00F0H         SYMBOL        B
@@ -73,7 +73,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   N:0000H         SYMBOL        IBPSTACK
   N:0100H         SYMBOL        IBPSTACKTOP
   N:0080H         SYMBOL        IDATALEN
-  C:08D2H         SYMBOL        IDATALOOP
+  C:08CCH         SYMBOL        IDATALOOP
   N:0000H         SYMBOL        PBPSTACK
   N:0100H         SYMBOL        PBPSTACKTOP
   N:0000H         SYMBOL        PDATALEN
@@ -82,18 +82,18 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   N:0000H         SYMBOL        PPAGEENABLE
   D:00A0H         SYMBOL        PPAGE_SFR
   D:0081H         SYMBOL        SP
-  C:08CFH         SYMBOL        STARTUP1
+  C:08C9H         SYMBOL        STARTUP1
   N:0000H         SYMBOL        XBPSTACK
   N:0000H         SYMBOL        XBPSTACKTOP
   N:0000H         SYMBOL        XDATALEN
   N:0000H         SYMBOL        XDATASTART
   C:0000H         LINE#         126
-  C:08CFH         LINE#         133
-  C:08D1H         LINE#         134
-  C:08D2H         LINE#         135
-  C:08D3H         LINE#         136
-  C:08D5H         LINE#         185
-  C:08D8H         LINE#         196
+  C:08C9H         LINE#         133
+  C:08CBH         LINE#         134
+  C:08CCH         LINE#         135
+  C:08CDH         LINE#         136
+  C:08CFH         LINE#         185
+  C:08D2H         LINE#         196
   -------         ENDMOD        ?C_STARTUP
 
   -------         MODULE        TRANSMITTER
@@ -105,7 +105,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   D:00B0H         PUBLIC        P3
   D:00C0H         PUBLIC        P4
   D:00A8H         PUBLIC        IEN0
-  C:095BH         PUBLIC        _MSDelay
+  C:0979H         PUBLIC        _MSDelay
   D:00B8H         PUBLIC        IPL0
   B:0098H.1       PUBLIC        TI
   D:00D8H         PUBLIC        CCON
@@ -118,14 +118,14 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   D:00F8H         PUBLIC        UEPINT
   B:0088H.6       PUBLIC        TR1
   D:00C8H         PUBLIC        T2CON
-  C:098EH         PUBLIC        _SerTx
-BL51 BANKED LINKER/LOCATER V6.22                                                      09/28/2015  16:38:16  PAGE 3
+  C:099FH         PUBLIC        _SerTx
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/05/2015  14:46:09  PAGE 3
 
 
   -------         PROC          MAIN
   -------         DO            
-  D:0018H         SYMBOL        colloc
-  D:0019H         SYMBOL        rowloc
+  D:0028H         SYMBOL        colloc
+  D:0029H         SYMBOL        rowloc
   -------         ENDDO         
   C:0800H         LINE#         22
   C:0800H         LINE#         23
@@ -179,7 +179,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   C:0881H         LINE#         82
   C:0884H         LINE#         83
   C:0887H         LINE#         84
-BL51 BANKED LINKER/LOCATER V6.22                                                      09/28/2015  16:38:16  PAGE 4
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/05/2015  14:46:09  PAGE 4
 
 
   C:088AH         LINE#         85
@@ -190,17 +190,19 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   C:089EH         LINE#         90
   C:08A8H         LINE#         91
   C:08ADH         LINE#         92
-  C:08BEH         LINE#         94
-  C:08CCH         LINE#         96
+  C:08BBH         LINE#         94
+  C:08C6H         LINE#         96
   -------         ENDPROC       MAIN
+  -------         PROC          L?0038
+  -------         ENDPROC       L?0038
   -------         PROC          _SERTX
-  D:0007H         SYMBOL        x
-  C:098EH         LINE#         99
-  C:098EH         LINE#         100
-  C:098EH         LINE#         101
-  C:0990H         LINE#         102
-  C:0993H         LINE#         103
-  C:0995H         LINE#         104
+  D:0006H         SYMBOL        x
+  C:099FH         LINE#         99
+  C:099FH         LINE#         100
+  C:099FH         LINE#         101
+  C:09A1H         LINE#         102
+  C:09A4H         LINE#         103
+  C:09A6H         LINE#         104
   -------         ENDPROC       _SERTX
   -------         PROC          _MSDELAY
   D:0006H         SYMBOL        value
@@ -208,17 +210,17 @@ SYMBOL TABLE OF MODULE:  .\Objects\ToneGenerator (?C_STARTUP)
   D:0004H         SYMBOL        x
   D:0002H         SYMBOL        y
   -------         ENDDO         
-  C:095BH         LINE#         106
-  C:095BH         LINE#         107
-  C:095BH         LINE#         109
-  C:095EH         LINE#         110
-  C:097AH         LINE#         111
+  C:0979H         LINE#         106
+  C:0979H         LINE#         107
+  C:0979H         LINE#         109
+  C:097CH         LINE#         110
+  C:0998H         LINE#         111
   -------         ENDPROC       _MSDELAY
   -------         ENDMOD        TRANSMITTER
 
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0118H BYTE (13%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0129H BYTE (14%) *
 ******************************************************************************
 
-Program Size: data=27.0 xdata=0 code=409
+Program Size: data=43.0 xdata=0 code=426
 LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

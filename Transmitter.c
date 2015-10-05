@@ -9,14 +9,14 @@ Gokul Koraganji
 #include "stdio.h"
 #define KEY P0
 
-void SerTx(unsigned char x);
+void SerTx(int x);
 void MSDelay(unsigned int value);
 
-unsigned char keypad[4][4]= {
-	'0','1','2','3',
-	'4','5','6','7',
-	'8','9','A','B',
-	'C','D','E','F',
+int keypad[4][4]= {
+	0,1,2,3,
+	4,5,6,7,
+	8,9,10,11,
+	12,13,14,15
 };
 
 void main()
@@ -96,7 +96,7 @@ void main()
 	}
 }
 
-void SerTx(unsigned char x)
+void SerTx(int x)
 {
 	SBUF = x;
 	while(TI==0);

@@ -368,6 +368,11 @@
               <FileType>2</FileType>
               <FilePath>.\STARTUP.A51</FilePath>
             </File>
+            <File>
+              <FileName>Transmitter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Transmitter.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

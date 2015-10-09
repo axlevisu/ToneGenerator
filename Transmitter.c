@@ -8,6 +8,7 @@ Gokul Koraganji
 #include "at89c5131.h"
 #include "stdio.h"
 #define KEY P0
+#define PRESS P1
 
 void SerTx(int x);
 void MSDelay(unsigned int value);
@@ -24,7 +25,7 @@ void main()
 
 	unsigned char colloc, rowloc;
 	TMOD = 0x20;//timer 1 mode 2
-	TH1 = -6; //4800 baud
+	TH1 = 243; //4800 baud
 	SCON = 0x50;//1stop bit and 8-bit long
 	TR1 = 1;//Start Timer
 	KEY = 0xFF;//Read from this port
@@ -84,14 +85,18 @@ void main()
 			rowloc =3;
 			break;
 		}
-		if(colloc == 0x0E)
+		if(colloc == 0x0E){
 			SerTx(keypad[rowloc][0]);
-		else if(colloc == 0x0D)
-			SerTx(keypad[rowloc][1]);
-		else if(colloc == 0x0B)
+			PRESS =keypad[rowloc][0]*16;}
+		else if(colloc == 0x0D){
+  		SerTx(keypad[rowloc][1]);
+			PRESS =keypad[rowloc][1]*16;}	
+			else if(colloc == 0x0B){
 			SerTx(keypad[rowloc][2]);		
-		else
-			SerTx(keypad[rowloc][3]);		
+			PRESS =keypad[rowloc][2]*16;}
+			else{
+			SerTx(keypad[rowloc][3]);
+			PRESS =keypad[rowloc][3]*16;}		
 			
 	}
 }

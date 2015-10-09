@@ -1,4 +1,4 @@
 ".\Objects\STARTUP.obj",
-".\Objects\Transmitter.obj" 
+".\Objects\Reciever.obj" 
 TO ".\Objects\ToneGenerator" 
 PRINT(".\Listings\ToneGenerator.m51") RAMSIZE(256) 

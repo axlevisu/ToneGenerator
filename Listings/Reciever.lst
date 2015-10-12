@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 15:36:43 PAGE 1   
+C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 16:39:23 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE RECIEVER
@@ -15,167 +15,255 @@ line level    source
    5          int HiBy,LoBy,a,b;
    6          bit change_delay;
    7          ///
-   8          ///~
-   9          sbit Out = P0^0;
-  10          
-  11          ///
-  12          
-  13          
-  14          ///~
-  15          
-  16          
+   8          void dacdatasend(int value1,int value2);
+   9          void SPI_Init();
+  10          void Timer_Init(); 
+  11          int i=0;
+  12          code int Array[12] ={128*16,192*16,239*16,255*16,239*16,192*16,128*16,64*16,17*16,0,17*16,64*16};
+  13          sbit CS_BAR = P2^6;                 // Chip Select for the ADC
+  14          sbit LDAC_BAR = P2^7;
+  15          bit transmit_completed= 0;  
+  16          unsigned char serial_data;
   17          
-  18          void Timer_Init()
-  19          {
-  20   1        // Set Timer0 to work in up counting 16 bit mode. Counts upto 
-  21   1        // 65536 depending upon the calues of TH0 and TL0
-  22   1        // The timer counts 65536 processor cycles. A processor cycle is 
-  23   1        // 12 clocks. FOr 24 MHz, it takes 65536/2 uS to overflow
-  24   1        // By setting TH0TL0 to 3CB0H, the timer overflows every 25 ms
-  25   1        EA=1;
-  26   1        TH0 = 0x3C;                     //For 25ms operation
-  27   1        TL0 = 0xB0;
-  28   1        TMOD = (TMOD & 0xF0) | 0x01;    // Set T/C0 Mode 
-  29   1        ET0 = 1;                        // Enable Timer 0 Interrupts 
-  30   1        TR0 = 1;                        // Start Timer 0 Running 
-  31   1        //count =0;
-  32   1      }
-  33          
-  34          
-  35          void Serial_Init ()
-  36          {
-  37   1        SCON = 0x50;
-  38   1        TMOD = (TMOD & 0x0F) | 0x20;
-  39   1        ES = 1;
-  40   1        TH1 = 243;
-  41   1        TR1 = 1;
-  42   1      }
-  43          
-  44          void Time_period (float frequency)
-  45          {
-  46   1        int counts = 1000000/frequency;
-  47   1        int two_cmpl;
-  48   1        ///
-  49   1        
-  50   1        ///~
-  51   1        two_cmpl=65536-counts;
-  52   1        HiBy = two_cmpl/256;
-  53   1        LoBy=two_cmpl%256;
-  54   1      }
-C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 15:36:43 PAGE 2   
+  18          ///~
+  19          sbit Out = P0^0;
+  20          
+  21          ///
+  22          void dacdatasend(int value1,int value2);
+  23          void SPI_Init();
+  24          void LCD_Init();
+  25          void Timer_Init(); 
+  26          void LCD_DataWrite(char dat);
+  27          void LCD_CmdWrite(char cmd);
+  28          void LCD_StringWrite(char * str, unsigned char len);
+  29          void LCD_Ready();
+  30          void sdelay(int delay);
+  31          void delay_ms(int delay);
+  32          
+  33            void it_SPI(void) interrupt 9 /* interrupt address is 0x004B */
+  34          {
+  35   1        switch  ( SPSTA )         /* read and clear spi status register */
+  36   1        {
+  37   2          case 0x80:  
+  38   2            transmit_completed=1;/* set software flag */
+  39   2            serial_data=SPDAT;
+  40   2          break;
+  41   2      
+  42   2          case 0x10:
+  43   2               /* put here for mode fault tasking */  
+  44   2          break;
+  45   2        
+  46   2          case 0x40:
+  47   2               /* put here for overrun tasking */ 
+  48   2          break;
+  49   2        }
+  50   1      }
+  51          
+  52          void SPI_Init()
+  53          {
+  54   1        CS_BAR = 1;                     // DISABLE ADC SLAVE SELECT-CS 
+C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 16:39:23 PAGE 2   
 
-  55          
-  56          void Timer0_ISR (void) interrupt 1
-  57          { ///
-  58   1        
-  59   1        ///~
-  60   1        TH0 = HiBy;                     //For 25ms operation
-  61   1        TL0 = LoBy; 
-  62   1        if(b!=0x0f){
-  63   2        Out=~Out;
-  64   2        ///
-  65   2            
-  66   2          
-  67   2        ///~
-  68   2        
-  69   2        }
-  70   1      }
-  71          
-  72          void Serial_ISR (void) interrupt 4
-  73          {
-  74   1        if(SBUF<=0x0B)
-  75   1          {a = SBUF;}
-  76   1        else{b = SBUF;}
-  77   1        RI = 0;
-  78   1        change_delay=1;
-  79   1        LED = 16*SBUF;
-  80   1      }
-  81          
-  82          
-  83          void main(void)
-  84          {
-  85   1        ///
-  86   1        ///~
-  87   1        Timer_Init();
-  88   1        Serial_Init();
-  89   1        while(1){
-  90   2          if (change_delay==1){
-  91   3          if(b==0x0c){
-  92   4            if(a==0x00){Time_period(130.81);}
-  93   4            if(a==0x01){Time_period(138.59);}
-  94   4            if(a==0x02){Time_period(146.83);}
-  95   4            if(a==0x03){Time_period(155.56);}
-  96   4            if(a==0x04){Time_period(164.81);}
-  97   4            if(a==0x05){Time_period(174.61);}
-  98   4            if(a==0x06){Time_period(185.00);}
-  99   4            if(a==0x07){Time_period(196.00);}
- 100   4            if(a==0x08){Time_period(207.65);}
- 101   4            if(a==0x09){Time_period(220.00);}
- 102   4            if(a==0x0A){Time_period(233.08);}
- 103   4            if(a==0x0B){Time_period(246.94);}
- 104   4            }
- 105   3          if(b==0x0d){
- 106   4            if(a==0x00){Time_period(261.63);}
- 107   4            if(a==0x01){Time_period(277.18);}
- 108   4            if(a==0x02){Time_period(293.66);}
- 109   4            if(a==0x03){Time_period(311.13);}
- 110   4            if(a==0x04){Time_period(329.63);}
- 111   4            if(a==0x05){Time_period(349.23);}
- 112   4            if(a==0x06){Time_period(369.99);}
- 113   4            if(a==0x07){Time_period(392.00);}
- 114   4            if(a==0x08){Time_period(415.30);}
- 115   4            if(a==0x09){Time_period(440.00);}
- 116   4            if(a==0x0A){Time_period(466.16);}
-C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 15:36:43 PAGE 3   
+  55   1        SPCON |= 0x20;                  // P1.1(SSBAR) is available as standard I/O pin 
+  56   1        SPCON |= 0x01;                  // Fclk Periph/4 AND Fclk Periph=12MHz ,HENCE SCK IE. BAUD RATE=3000KHz 
+  57   1        SPCON |= 0x10;                  // Master mode 
+  58   1        SPCON &= ~0x08;                 // CPOL=0; transmit mode example|| SCK is 0 at idle state
+  59   1        SPCON |= 0x04;                  // CPHA=1; transmit mode example 
+  60   1        IEN1 |= 0x04;                   // enable spi interrupt 
+  61   1        EA=1;                           // enable interrupts 
+  62   1        SPCON |= 0x40;                  // run spi;ENABLE SPI INTERFACE SPEN= 1 
+  63   1      }
+  64          ///~
+  65          
+  66          
+  67          
+  68          void Timer_Init()
+  69          {
+  70   1        // Set Timer0 to work in up counting 16 bit mode. Counts upto 
+  71   1        // 65536 depending upon the calues of TH0 and TL0
+  72   1        // The timer counts 65536 processor cycles. A processor cycle is 
+  73   1        // 12 clocks. FOr 24 MHz, it takes 65536/2 uS to overflow
+  74   1        // By setting TH0TL0 to 3CB0H, the timer overflows every 25 ms
+  75   1        EA=1;
+  76   1        TH0 = 0x3C;                     //For 25ms operation
+  77   1        TL0 = 0xB0;
+  78   1        TMOD = (TMOD & 0xF0) | 0x01;    // Set T/C0 Mode 
+  79   1        ET0 = 1;                        // Enable Timer 0 Interrupts 
+  80   1        TR0 = 1;                        // Start Timer 0 Running 
+  81   1        //count =0;
+  82   1      }
+  83          
+  84          
+  85          void Serial_Init ()
+  86          {
+  87   1        SCON = 0x50;
+  88   1        TMOD = (TMOD & 0x0F) | 0x20;
+  89   1        ES = 1;
+  90   1        TH1 = 243;
+  91   1        TR1 = 1;
+  92   1      }
+  93          
+  94          void Time_period (float frequency)
+  95          {
+  96   1        int counts = 1000000/frequency;
+  97   1        int two_cmpl;
+  98   1        ///
+  99   1        counts = counts/6;
+ 100   1        ///~
+ 101   1        two_cmpl=65536-counts;
+ 102   1        HiBy = two_cmpl/256;
+ 103   1        LoBy=two_cmpl%256;
+ 104   1      }
+ 105          
+ 106          void Timer0_ISR (void) interrupt 1
+ 107          { ///
+ 108   1        
+ 109   1        ///~
+ 110   1        TH0 = HiBy;                     //For 25ms operation
+ 111   1        TL0 = LoBy; 
+ 112   1        if(b!=0x0f){
+ 113   2        //if(i%6==0){Out=~Out;}
+ 114   2        ///
+ 115   2        if(i%6==0){Out=~Out;}
+ 116   2        dacdatasend(0,Array[i]/256);  
+C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 16:39:23 PAGE 3   
 
- 117   4            if(a==0x0B){Time_period(493.88);}
- 118   4            }
- 119   3          if(b==0x0e){
- 120   4            if(a==0x00){Time_period(523.25);}
- 121   4            if(a==0x01){Time_period(554.37);}
- 122   4            if(a==0x02){Time_period(587.33);}
- 123   4            if(a==0x03){Time_period(622.25);}
- 124   4            if(a==0x04){Time_period(659.25);}
- 125   4            if(a==0x05){Time_period(698.46);}
- 126   4            if(a==0x06){Time_period(739.99);}
- 127   4            if(a==0x07){Time_period(783.99);}
- 128   4            if(a==0x08){Time_period(830.61);}
- 129   4            if(a==0x09){Time_period(880.00);}
- 130   4            if(a==0x0A){Time_period(932.33);}
- 131   4            if(a==0x0B){Time_period(987.77);}
- 132   4            }
- 133   3          change_delay=0;
- 134   3          }
- 135   2          
- 136   2      
- 137   2          
- 138   2        }
- 139   1      }
- 140          
- 141          /*if(b==0x0e){
- 142                if(a==0x00){Time_period(1046.50);}
- 143                if(a==0x01){Time_period(1108.73);}
- 144                if(a==0x02){Time_period(1174.66);}
- 145                if(a==0x03){Time_period(1244.51);}
- 146                if(a==0x04){Time_period(1318.51);}
- 147                if(a==0x05){Time_period(1396.91);}
- 148                if(a==0x06){Time_period(1479.98);}
- 149                if(a==0x07){Time_period(1567.98);}
- 150                if(a==0x08){Time_period(1661.22);}
- 151                if(a==0x09){Time_period(1760.00);}
- 152                if(a==0x0A){Time_period(1864.66);}
- 153                if(a==0x0B){Time_period(1975.53);}
- 154                }*/
+ 117   2        
+ 118   2        dacdatasend(0,Array[i]%256);
+ 119   2        i = (i+1)%12;
+ 120   2        ///~
+ 121   2        
+ 122   2        }
+ 123   1      }
+ 124          
+ 125          void dacdatasend(int value1,int value2)
+ 126            {
+ 127   1        
+ 128   1          int b;
+ 129   1          char c;
+ 130   1          c = value1 + 0x70;
+ 131   1          b = value2;
+ 132   1        
+ 133   1          LDAC_BAR =1;
+ 134   1          CS_BAR = 0;     // enable ADC as slave     
+ 135   1          SPDAT= c;       // 80H written to start ADC CH0 single ended sampling
+ 136   1          while(!transmit_completed); // wait end of transmition   
+ 137   1          transmit_completed = 0;     // clear software transfer flag 
+ 138   1          
+ 139   1          c = b;
+ 140   1          SPDAT= c;               // 
+ 141   1          while(!transmit_completed); // wait end of transmition 
+ 142   1          transmit_completed = 0;     // clear software transfer flag 
+ 143   1          CS_BAR = 1;                 // disable ADC as slave
+ 144   1          LDAC_BAR =0;
+ 145   1        
+ 146   1      }
+ 147          
+ 148          
+ 149          
+ 150          void Serial_ISR (void) interrupt 4
+ 151          {
+ 152   1        if(SBUF<=0x0B)
+ 153   1          {a = SBUF;}
+ 154   1        else{b = SBUF;}
+ 155   1        RI = 0;
+ 156   1        change_delay=1;
+ 157   1        LED = 16*SBUF;
+ 158   1      }
+ 159          
+ 160          
+ 161          void main(void)
+ 162          {
+ 163   1        ///
+ 164   1        //P3 = 0X00;                      // Make Port 3 output 
+ 165   1        P2 = 0x00;                      // Make Port 2 output 
+ 166   1        P1 &= 0xEF;                     // Make P1 Pin4-7 output
+ 167   1        P0 &= 0xF0;                     // Make Port 0 Pins 0,1,2 output
+ 168   1        
+ 169   1        SPI_Init();
+ 170   1        ///~
+ 171   1        Timer_Init();
+ 172   1        Serial_Init();
+ 173   1        while(1){
+ 174   2          if (change_delay==1){
+ 175   3          if(b==0x0c){
+ 176   4            if(a==0x00){Time_period(130.81);}
+ 177   4            if(a==0x01){Time_period(138.59);}
+ 178   4            if(a==0x02){Time_period(146.83);}
+C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 16:39:23 PAGE 4   
 
+ 179   4            if(a==0x03){Time_period(155.56);}
+ 180   4            if(a==0x04){Time_period(164.81);}
+ 181   4            if(a==0x05){Time_period(174.61);}
+ 182   4            if(a==0x06){Time_period(185.00);}
+ 183   4            if(a==0x07){Time_period(196.00);}
+ 184   4            if(a==0x08){Time_period(207.65);}
+ 185   4            if(a==0x09){Time_period(220.00);}
+ 186   4            if(a==0x0A){Time_period(233.08);}
+ 187   4            if(a==0x0B){Time_period(246.94);}
+ 188   4            }
+ 189   3          if(b==0x0d){
+ 190   4            if(a==0x00){Time_period(261.63);}
+ 191   4            if(a==0x01){Time_period(277.18);}
+ 192   4            if(a==0x02){Time_period(293.66);}
+ 193   4            if(a==0x03){Time_period(311.13);}
+ 194   4            if(a==0x04){Time_period(329.63);}
+ 195   4            if(a==0x05){Time_period(349.23);}
+ 196   4            if(a==0x06){Time_period(369.99);}
+ 197   4            if(a==0x07){Time_period(392.00);}
+ 198   4            if(a==0x08){Time_period(415.30);}
+ 199   4            if(a==0x09){Time_period(440.00);}
+ 200   4            if(a==0x0A){Time_period(466.16);}
+ 201   4            if(a==0x0B){Time_period(493.88);}
+ 202   4            }
+ 203   3          if(b==0x0e){
+ 204   4            if(a==0x00){Time_period(523.25);}
+ 205   4            if(a==0x01){Time_period(554.37);}
+ 206   4            if(a==0x02){Time_period(587.33);}
+ 207   4            if(a==0x03){Time_period(622.25);}
+ 208   4            if(a==0x04){Time_period(659.25);}
+ 209   4            if(a==0x05){Time_period(698.46);}
+ 210   4            if(a==0x06){Time_period(739.99);}
+ 211   4            if(a==0x07){Time_period(783.99);}
+ 212   4            if(a==0x08){Time_period(830.61);}
+ 213   4            if(a==0x09){Time_period(880.00);}
+ 214   4            if(a==0x0A){Time_period(932.33);}
+ 215   4            if(a==0x0B){Time_period(987.77);}
+ 216   4            }
+ 217   3          change_delay=0;
+ 218   3          }
+ 219   2          
+ 220   2      
+ 221   2          
+ 222   2        }
+ 223   1      }
+ 224          
+ 225          /*if(b==0x0e){
+ 226                if(a==0x00){Time_period(1046.50);}
+ 227                if(a==0x01){Time_period(1108.73);}
+ 228                if(a==0x02){Time_period(1174.66);}
+ 229                if(a==0x03){Time_period(1244.51);}
+ 230                if(a==0x04){Time_period(1318.51);}
+ 231                if(a==0x05){Time_period(1396.91);}
+ 232                if(a==0x06){Time_period(1479.98);}
+ 233                if(a==0x07){Time_period(1567.98);}
+ 234                if(a==0x08){Time_period(1661.22);}
+ 235                if(a==0x09){Time_period(1760.00);}
+ 236                if(a==0x0A){Time_period(1864.66);}
+ 237                if(a==0x0B){Time_period(1975.53);}
+ 238                }*/
+
+
+C51 COMPILER V9.54   RECIEVER                                                              10/09/2015 16:39:23 PAGE 5   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    874    ----
-   CONSTANT SIZE    =   ----    ----
+   CODE SIZE        =   1144    ----
+   CONSTANT SIZE    =     24    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      8    ----
+   DATA SIZE        =     11    ----
    IDATA SIZE       =   ----    ----
-   BIT SIZE         =      1    ----
+   BIT SIZE         =      2    ----
 END OF MODULE INFORMATION.
 
 

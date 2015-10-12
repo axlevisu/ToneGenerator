@@ -364,14 +364,9 @@
           <GroupName>Source Group 1</GroupName>
           <Files>
             <File>
-              <FileName>STARTUP.A51</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\STARTUP.A51</FilePath>
-            </File>
-            <File>
-              <FileName>Transmitter.c</FileName>
+              <FileName>Reciever.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Transmitter.c</FilePath>
+              <FilePath>.\Reciever.c</FilePath>
             </File>
           </Files>
         </Group>

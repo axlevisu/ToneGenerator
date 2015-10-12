@@ -1,13 +1,16 @@
 #include "at89c5131.h"
 #include "stdio.h"
-#define LED P1
+
 
 int HiBy,LoBy,a,b;
 bit change_delay;
+int Array[12] = {128*16,192*16,239*16,255*16,239*16,192*16,128*16,64*16,17*16,0,17*16,64*16};
+int i=0;
+bit transmit_completed = 0;
+sbit CS_BAR = P0^2;
+sbit LDAC_BAR = P0^1;
 sbit Out = P0^0;
-
-
-
+unsigned char serial_data;
 
 void Timer_Init()
 {
@@ -25,6 +28,19 @@ void Timer_Init()
 	//count =0;
 }
 
+void SPI_Init ()
+{
+  CS_BAR = 1;	                  	// DISABLE ADC SLAVE SELECT-CS 
+	SPCON |= 0x20;               	 	// P1.1(SSBAR) is available as standard I/O pin 
+	SPCON |= 0x01;                	// Fclk Periph/4 AND Fclk Periph=12MHz ,HENCE SCK IE. BAUD RATE=3000KHz 
+	SPCON |= 0x10;               	 	// Master mode 
+	SPCON &= ~0x08;               	// CPOL=0; transmit mode example|| SCK is 0 at idle state
+	SPCON &= ~0x04;                	// CPHA=1; transmit mode example 
+	IEN1 |= 0x04;                	 	// enable spi interrupt 
+	EA=1;                         	// enable interrupts 
+	SPCON |= 0x40; 
+}
+
 
 void Serial_Init ()
 {
@@ -37,18 +53,39 @@ void Serial_Init ()
 
 void Time_period (float frequency)
 {
+	int two_cmpl;
 	int counts = 1000000/frequency;
-	int two_cmpl=65536-counts;
+  counts = counts/6;
+	two_cmpl=65536-counts;
 	HiBy = two_cmpl/256;
 	LoBy=two_cmpl%256;
 }
 
 void Timer0_ISR (void) interrupt 1
 {
+	char c;
 	TH0 = HiBy;											//For 25ms operation
 	TL0 = LoBy; 
-	if(b!=0x0f){
-	Out=~Out;}
+	if(b!=0x0f)
+		{
+			if(i%6==0){Out=~Out;}
+			LDAC_BAR = 1;
+			CS_BAR = 0;                 // enable ADC as slave		 
+		  c = Array[i]/256;
+			SPDAT= 0x70+c;								// Write start bit to start ADC 
+		  while(!transmit_completed);	// wait end of transmition;TILL SPIF = 1 
+		  transmit_completed = 0;    	// clear software transfert flag 
+		
+			
+			c = Array[i]%256;
+			SPDAT = c;
+			while(!transmit_completed);
+			transmit_completed = 0;
+			
+		  CS_BAR = 1; 
+			LDAC_BAR = 0;}              	// disable ADC as slave*/}
+	if(i!=12){i++;}
+	else{i=0;}
 }
 
 void Serial_ISR (void) interrupt 4
@@ -58,13 +95,37 @@ void Serial_ISR (void) interrupt 4
 	else{b = SBUF;}
 	RI = 0;
 	change_delay=1;
-	LED = 16*SBUF;
+}
+
+void it_SPI(void) interrupt 9 /* interrupt address is 0x004B */
+{
+	switch	( SPSTA )         /* read and clear spi status register */
+	{
+		case 0x80:	   /* read receive data */
+    serial_data=SPDAT;    
+		transmit_completed=1;/* set software flag */
+ 		break;
+
+		case 0x10:
+         /* put here for mode fault tasking */	
+		break;
+	
+		case 0x40:
+         /* put here for overrun tasking */	
+		break;
+	}
 }
 
 void main(void)
 {
+	P3 = 0X00;											// Make Port 3 output 
+	P2 = 0x00;											// Make Port 2 output 
+	P1 &= 0xEF;											// Make P1 Pin4-7 output
+	P0 &= 0xF0;											// Make Port 0 Pins 0,1,2 output
+	
 	Timer_Init();
 	Serial_Init();
+	SPI_Init();
 	while(1){
 		if (change_delay==1){
 		if(b==0x0c){
@@ -116,18 +177,3 @@ void main(void)
 		
 	}
 }
-
-/*if(b==0x0e){
-			if(a==0x00){Time_period(1046.50);}
-			if(a==0x01){Time_period(1108.73);}
-			if(a==0x02){Time_period(1174.66);}
-			if(a==0x03){Time_period(1244.51);}
-			if(a==0x04){Time_period(1318.51);}
-			if(a==0x05){Time_period(1396.91);}
-			if(a==0x06){Time_period(1479.98);}
-			if(a==0x07){Time_period(1567.98);}
-			if(a==0x08){Time_period(1661.22);}
-			if(a==0x09){Time_period(1760.00);}
-			if(a==0x0A){Time_period(1864.66);}
-			if(a==0x0B){Time_period(1975.53);}
-			}*/
